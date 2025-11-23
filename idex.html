@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="km">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>HR Attendance System</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              khmer: ["Battambang", "cursive"],
+              moul: ["Moul", "cursive"],
+            },
+            colors: {
+              primary: "#2563eb",
+              secondary: "#64748b",
+            },
+            animation: {
+              "fade-in": "fadeIn 0.5s ease-out",
+              "slide-up": "slideUp 0.5s ease-out",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
+              slideUp: {
+                "0%": { opacity: "0", transform: "translateY(20px)" },
+                "100%": { opacity: "1", transform: "translateY(0)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Moul&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", "Battambang", sans-serif;
+        background-color: #f1f5f9;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+      }
+      ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+      }
+
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .dark .glass-panel {
+        background: rgba(30, 41, 59, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+      }
+
+      /* --- PROFESSIONAL PRINT STYLES (A4 FIXED) --- */
+      @media print {
+        @page {
+          margin: 15mm 10mm;
+          size: A4 portrait;
+        }
+        body {
+          background: white;
+          color: black;
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+          font-family: "Battambang", sans-serif;
+          font-size: 11pt;
+        }
+        .no-print {
+          display: none !important;
+        }
+        .print-only {
+          display: block !important;
+        }
+
+        /* Reset Widths */
+        .max-w-md {
+          max-width: none !important;
+          width: 100% !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        /* Header Layout */
+        .print-header {
+          width: 100%;
+          margin-bottom: 25px;
+          text-align: center;
+        }
+        .national-motto {
+          text-align: center;
+          font-family: "Moul", cursive;
+          line-height: 1.6;
+          margin-bottom: 20px;
+        }
+        .national-motto h3 {
+          font-size: 12pt;
+          font-weight: normal;
+          margin: 0;
+        }
+        .national-motto h2 {
+          font-size: 14pt;
+          font-weight: normal;
+          margin: 0;
+        }
+
+        .report-title {
+          font-family: "Moul", cursive;
+          font-size: 16pt;
+          color: #1e3a8a;
+          text-decoration: underline;
+          text-underline-offset: 6px;
+          margin: 15px 0;
+          font-weight: normal;
+        }
+
+        .doc-info {
+          display: flex;
+          justify-content: space-between;
+          font-size: 10pt;
+          margin-bottom: 20px;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+        }
+
+        /* Summary Cards (Print) */
+        .print-summary-grid {
+          display: flex;
+          justify-content: space-between;
+          gap: 15px;
+          margin-bottom: 25px;
+        }
+        .print-card {
+          flex: 1;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 12px 5px;
+          text-align: center;
+          background-color: #f8fafc;
+        }
+        .print-card-label {
+          font-size: 9pt;
+          color: #64748b;
+          margin-bottom: 5px;
+          font-family: "Battambang", sans-serif;
+          font-weight: bold;
+        }
+        .print-card-value {
+          font-size: 14pt;
+          font-weight: bold;
+          color: #0f172a;
+          font-family: "Inter", sans-serif;
+        }
+
+        /* Table Layout */
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 10pt;
+        }
+        th,
+        td {
+          border: 1px solid #94a3b8;
+          padding: 8px 6px;
+          vertical-align: middle;
+        }
+        th {
+          background-color: #e2e8f0 !important;
+          color: #0f172a;
+          font-family: "Moul", cursive;
+          font-size: 9pt;
+          text-align: center;
+          font-weight: normal;
+          height: 40px;
+        }
+        .col-no {
+          width: 5%;
+          text-align: center;
+        }
+        .col-name {
+          width: 25%;
+          text-align: left;
+          padding-left: 10px;
+          font-weight: bold;
+        }
+        .col-skill {
+          width: 15%;
+          text-align: left;
+          padding-left: 10px;
+        }
+        .col-time {
+          width: 15%;
+          text-align: center;
+          font-family: "Inter", sans-serif;
+        }
+        .col-status {
+          width: 15%;
+          text-align: center;
+          font-weight: bold;
+          font-size: 9pt;
+        }
+        .col-note {
+          width: 10%;
+          text-align: left;
+          font-style: italic;
+          color: #64748b;
+          font-size: 9pt;
+        }
+
+        .status-present {
+          color: #15803d;
+        }
+        .status-permission {
+          color: #b45309;
+        }
+        .status-absent {
+          color: #b91c1c;
+        }
+
+        /* Footer */
+        .footer-section {
+          margin-top: 40px;
+          display: flex;
+          justify-content: space-between;
+          padding: 0 40px;
+          page-break-inside: avoid;
+        }
+        .signature-box {
+          text-align: center;
+          width: 250px;
+        }
+        .signature-title {
+          font-family: "Moul", cursive;
+          font-size: 10pt;
+          margin-bottom: 70px;
+          font-weight: normal;
+        }
+        .signature-line {
+          border-top: 1px dotted #000;
+          width: 80%;
+          margin: 0 auto;
+        }
+      }
+      .print-only {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+      import React, {
+        useState,
+        useEffect,
+        useMemo,
+      } from "https://esm.sh/react@18.2.0";
+      import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+        update,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+      import {
+        CheckCircle2,
+        XCircle,
+        Clock,
+        Calendar,
+        Search,
+        UserCheck,
+        LogOut,
+        ChevronLeft,
+        ChevronRight,
+        FileText,
+        Briefcase,
+        Save,
+        X,
+        Loader2,
+        Printer,
+        PieChart,
+        Users,
+        Check,
+        Settings,
+        Filter,
+        Palette,
+        Layout,
+        TrendingUp,
+        Moon,
+        Sun,
+        UserPlus,
+        ListChecks,
+      } from "https://esm.sh/lucide-react@0.344.0";
+
+      // --- Configuration ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyC3pJ5902riWQ_5tSNi2MxznKj3msUtXMg",
+        authDomain: "att-e7aba.firebaseapp.com",
+        projectId: "att-e7aba",
+        storageBucket: "att-e7aba.firebasestorage.app",
+        messagingSenderId: "893825794222",
+        appId: "1:893825794222:web:3e373a1801af855aecad3f",
+        measurementId: "G-0SXDQ6SQMK",
+        databaseURL: "https://att-e7aba-default-rtdb.firebaseio.com/",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      const SHEET_ID = "1g0SQ6C6GQane4htPWPVpiuKA6cS6Wt93orwYT_7MnGE";
+      const SHEET_NAME = "DB";
+      const RANGE = "C3:G";
+
+      // --- Helpers ---
+      const toKhmerNum = (num) => {
+        if (num === undefined || num === null || isNaN(num)) return num || "";
+        const str = num.toString();
+        const khmerNums = ["០", "១", "២", "៣", "៤", "៥", "៦", "៧", "៨", "៩"];
+        return str.replace(/[0-9]/g, (d) => khmerNums[d]);
+      };
+      const formatTimeKh = (timeStr) =>
+        !timeStr || timeStr === "ច្បាប់" ? timeStr : toKhmerNum(timeStr);
+      const formatDateKh = (dateStr) => {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        const day = toKhmerNum(date.getDate().toString().padStart(2, "0"));
+        const month = toKhmerNum(
+          (date.getMonth() + 1).toString().padStart(2, "0")
+        );
+        const year = toKhmerNum(date.getFullYear());
+        return `ថ្ងៃទី${day} ខែ${month} ឆ្នាំ${year}`;
+      };
+      const getKhmerDay = (dateStr) => {
+        const days = [
+          "អាទិត្យ",
+          "ច័ន្ទ",
+          "អង្គារ",
+          "ពុធ",
+          "ព្រហស្បតិ៍",
+          "សុក្រ",
+          "សៅរ៍",
+        ];
+        const date = new Date(dateStr);
+        return days[date.getDay()];
+      };
+
+      const THEMES = [
+        {
+          id: "blue",
+          name: "ខៀវ",
+          primary: "bg-blue-600",
+          secondary: "bg-blue-50",
+          text: "text-blue-600",
+          border: "border-blue-100",
+          ring: "ring-blue-500",
+          darkText: "dark:text-blue-400",
+        },
+        {
+          id: "emerald",
+          name: "បៃតង",
+          primary: "bg-emerald-600",
+          secondary: "bg-emerald-50",
+          text: "text-emerald-600",
+          border: "border-emerald-100",
+          ring: "ring-emerald-500",
+          darkText: "dark:text-emerald-400",
+        },
+        {
+          id: "violet",
+          name: "ស្វាយ",
+          primary: "bg-violet-600",
+          secondary: "bg-violet-50",
+          text: "text-violet-600",
+          border: "border-violet-100",
+          ring: "ring-violet-500",
+          darkText: "dark:text-violet-400",
+        },
+        {
+          id: "orange",
+          name: "ទឹកក្រូច",
+          primary: "bg-orange-500",
+          secondary: "bg-orange-50",
+          text: "text-orange-600",
+          border: "border-orange-100",
+          ring: "ring-orange-500",
+          darkText: "dark:text-orange-400",
+        },
+      ];
+
+      function AttendanceApp() {
+        const [employees, setEmployees] = useState([]);
+        const [rawAttendanceData, setRawAttendanceData] = useState({});
+        const [attendanceData, setAttendanceData] = useState({});
+        const [loading, setLoading] = useState(true);
+
+        const [viewMode, setViewMode] = useState("attendance");
+        const [currentTheme, setCurrentTheme] = useState(THEMES[0]);
+        const [isDarkMode, setIsDarkMode] = useState(false);
+        const [toast, setToast] = useState(null);
+
+        const [filterMode, setFilterMode] = useState("daily");
+        const [filterDate, setFilterDate] = useState(
+          new Date().toISOString().split("T")[0]
+        );
+        const [filterMonth, setFilterMonth] = useState(
+          new Date().toISOString().slice(0, 7)
+        );
+        const [startDate, setStartDate] = useState(
+          new Date().toISOString().split("T")[0]
+        );
+        const [endDate, setEndDate] = useState(
+          new Date().toISOString().split("T")[0]
+        );
+
+        const [showPermissionModal, setShowPermissionModal] = useState(false);
+        const [selectedEmp, setSelectedEmp] = useState(null);
+        const [permissionReason, setPermissionReason] = useState("");
+        const [permissionType, setPermissionType] = useState("full");
+
+        useEffect(() => {
+          fetchEmployees();
+        }, []);
+        useEffect(() => {
+          if (isDarkMode) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        }, [isDarkMode]);
+
+        useEffect(() => {
+          if (filterMode === "daily") {
+            const unsubscribe = onValue(
+              ref(db, `attendance/${filterDate}`),
+              (snap) => {
+                const val = snap.val() || {};
+                setAttendanceData(val);
+                setRawAttendanceData({ [filterDate]: val });
+              }
+            );
+            return () => unsubscribe();
+          } else {
+            const unsubscribe = onValue(ref(db, "attendance"), (snap) => {
+              const allData = snap.val() || {};
+              setRawAttendanceData(allData);
+            });
+            return () => unsubscribe();
+          }
+        }, [filterMode, filterDate]);
+
+        const showToast = (message, type = "success") => {
+          setToast({ message, type });
+          setTimeout(() => setToast(null), 3000);
+        };
+
+        const fetchEmployees = async () => {
+          setLoading(true);
+          try {
+            const res = await fetch(
+              `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}&range=${RANGE}`
+            );
+            const txt = await res.text();
+            const rows = txt
+              .split("\n")
+              .map((row) => row.split(",").map((c) => c.replace(/"/g, "")));
+            setEmployees(
+              rows
+                .filter((r) => r[0])
+                .map((r, i) => ({
+                  id: `emp_${i}`,
+                  name: r[0],
+                  gender: r[2],
+                  skill: r[4] ? r[4].trim() : "ទូទៅ",
+                }))
+            );
+          } catch (e) {
+            console.error(e);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        const updateStatus = async (employee, type, reason = "") => {
+          const today = new Date().toISOString().split("T")[0];
+          const targetDate = filterMode === "daily" ? filterDate : today;
+          const time = new Date().toLocaleTimeString("en-US", {
+            hour12: false,
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          const key = employee.name.replace(/[.#$/[\]]/g, "_");
+          const path = `attendance/${targetDate}/${key}`;
+
+          let current = {};
+          if (filterMode === "daily") current = attendanceData[key] || {};
+          let data = {
+            ...current,
+            name: employee.name,
+            gender: employee.gender,
+            updatedAt: new Date().toISOString(),
+          };
+
+          if (type === "check-in") {
+            data.status = "present";
+            data.checkInTime = time;
+            showToast(`✅ ${employee.name} បាន Check-in`);
+          } else if (type === "check-out") {
+            data.checkOutTime = time;
+            showToast(`👋 ${employee.name} បាន Check-out`);
+          } else if (type === "absent") {
+            data.status = "absent";
+            showToast(`⚠️ ${employee.name} ត្រូវបានកត់ត្រាអវត្តមាន`, "error");
+          }
+
+          try {
+            await update(ref(db), { [path]: data });
+          } catch (e) {
+            showToast("បរាជ័យក្នុងការរក្សាទុក", "error");
+          }
+        };
+
+        const updatePermission = async () => {
+          if (!selectedEmp) return;
+          const today = new Date().toISOString().split("T")[0];
+          const targetDate = filterMode === "daily" ? filterDate : today;
+          const key = selectedEmp.name.replace(/[.#$/[\]]/g, "_");
+          const path = `attendance/${targetDate}/${key}`;
+          let current = attendanceData[key] || {};
+
+          let data = {
+            ...current,
+            name: selectedEmp.name,
+            gender: selectedEmp.gender,
+            updatedAt: new Date().toISOString(),
+            reason: permissionReason,
+          };
+
+          if (permissionType === "full") {
+            data.status = "permission";
+            data.checkInTime = "ច្បាប់";
+            data.checkOutTime = "ច្បាប់";
+          } else if (permissionType === "check-in") {
+            if (!data.status) data.status = "permission";
+            data.checkInTime = "ច្បាប់";
+          } else if (permissionType === "check-out") {
+            if (!data.status) data.status = "permission";
+            data.checkOutTime = "ច្បាប់";
+          }
+
+          try {
+            await update(ref(db), { [path]: data });
+            showToast(`📝 បានកត់ត្រាច្បាប់សម្រាប់ ${selectedEmp.name}`);
+            setShowPermissionModal(false);
+          } catch (e) {
+            showToast("បរាជ័យក្នុងការរក្សាទុក", "error");
+          }
+        };
+
+        const aggregatedStats = useMemo(() => {
+          let records = [];
+          if (filterMode === "daily") {
+            records = Object.values(attendanceData);
+          } else {
+            Object.keys(rawAttendanceData).forEach((dateKey) => {
+              let include = false;
+              if (filterMode === "monthly" && dateKey.startsWith(filterMonth))
+                include = true;
+              if (
+                filterMode === "range" &&
+                dateKey >= startDate &&
+                dateKey <= endDate
+              )
+                include = true;
+              if (include)
+                records = [
+                  ...records,
+                  ...Object.values(rawAttendanceData[dateKey]),
+                ];
+            });
+          }
+
+          const total = employees.length;
+          const presentCount = records.filter(
+            (r) => r.status === "present"
+          ).length;
+          const permissionCount = records.filter(
+            (r) => r.status === "permission"
+          ).length;
+          const absentCount = records.filter(
+            (r) => r.status === "absent"
+          ).length;
+
+          const skills = [...new Set(employees.map((e) => e.skill))];
+          const skillStats = skills.map((skill) => {
+            const skillEmps = employees
+              .filter((e) => e.skill === skill)
+              .map((e) => e.name);
+            const skillRecords = records.filter((r) =>
+              skillEmps.includes(r.name)
+            );
+            const completed = skillRecords.filter(
+              (r) => r.status === "present" && r.checkInTime && r.checkOutTime
+            ).length;
+            const pending = skillRecords.filter(
+              (r) => r.status === "present" && r.checkInTime && !r.checkOutTime
+            ).length;
+            return { skill, completed, pending, totalEmps: skillEmps.length };
+          });
+
+          let reportRecords = records.filter(
+            (r) =>
+              r.status === "present" ||
+              r.status === "permission" ||
+              r.status === "absent"
+          );
+          reportRecords.sort((a, b) => a.name.localeCompare(b.name));
+
+          return {
+            total,
+            presentCount,
+            permissionCount,
+            absentCount,
+            skillStats,
+            reportRecords,
+          };
+        }, [
+          employees,
+          attendanceData,
+          rawAttendanceData,
+          filterMode,
+          filterMonth,
+          startDate,
+          endDate,
+        ]);
+
+        const changeDate = (d) => {
+          const date = new Date(filterDate);
+          date.setDate(date.getDate() + d);
+          setFilterDate(date.toISOString().split("T")[0]);
+        };
+
+        const pendingList = employees.filter((emp) => {
+          const key = emp.name.replace(/[.#$/[\]]/g, "_");
+          const rec = attendanceData[key];
+          return !rec || !rec.status;
+        });
+
+        const activeList = employees.filter((emp) => {
+          const key = emp.name.replace(/[.#$/[\]]/g, "_");
+          const rec = attendanceData[key];
+          return (
+            rec &&
+            (rec.status === "present" ||
+              rec.status === "permission" ||
+              rec.status === "absent")
+          );
+        });
+
+        return (
+          <div
+            className={`min-h-screen bg-slate-50 dark:bg-slate-950 pb-24 flex flex-col font-sans transition-colors duration-300`}
+          >
+            {/* Header (Hidden in Print) */}
+            <header className="sticky top-0 z-30 px-5 py-4 glass-panel no-print">
+              <div className="max-w-md mx-auto w-full">
+                <div className="flex justify-between items-center mb-4">
+                  <h1
+                    className={`text-2xl font-extrabold font-khmer tracking-tight flex items-center gap-2 text-slate-800 dark:text-slate-100`}
+                  >
+                    <div
+                      className={`w-10 h-10 ${currentTheme.primary} rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200/50 dark:shadow-none`}
+                    >
+                      <Briefcase size={20} strokeWidth={2.5} />
+                    </div>
+                    HR Admin
+                  </h1>
+                  {filterMode !== "daily" && (
+                    <span
+                      className={`text-[10px] font-bold px-3 py-1 rounded-full ${currentTheme.secondary} ${currentTheme.text} dark:bg-slate-800 ${currentTheme.darkText} border ${currentTheme.border} dark:border-slate-700 font-khmer`}
+                    >
+                      {filterMode === "monthly" ? "ប្រចាំខែ" : "ចន្លោះថ្ងៃ"}
+                    </span>
+                  )}
+                </div>
+                {filterMode === "daily" && (
+                  <div className="flex items-center justify-between bg-white dark:bg-slate-800 rounded-2xl p-1.5 shadow-sm border border-slate-100 dark:border-slate-700 transition-colors">
+                    <button
+                      onClick={() => changeDate(-1)}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-400 hover:text-blue-600 transition-all"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-khmer">
+                        កាលបរិច្ឆេទ
+                      </span>
+                      <span className="text-base font-bold text-slate-700 dark:text-slate-200 font-khmer tracking-wide">
+                        {formatDateKh(filterDate)}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => changeDate(1)}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-400 hover:text-blue-600 transition-all"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </header>
+
+            <main className="flex-1 max-w-md mx-auto w-full p-5 space-y-6 print-container">
+              {/* 1. ATTENDANCE VIEW */}
+              {viewMode === "attendance" && (
+                <div className="animate-fade-in space-y-5 no-print">
+                  {filterMode !== "daily" && (
+                    <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 text-orange-600 dark:text-orange-400 p-3 rounded-xl text-xs font-bold text-center mb-2 font-khmer">
+                      ⚠️ សូមប្តូរទៅ "ប្រចាំថ្ងៃ" ដើម្បី Check-in
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between px-1">
+                    <h2 className="font-bold text-lg text-slate-700 dark:text-slate-200 font-khmer">
+                      បុគ្គលិកមិនទាន់មក
+                    </h2>
+                    <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs px-3 py-1 rounded-full font-bold">
+                      {toKhmerNum(pendingList.length)} នាក់
+                    </span>
+                  </div>
+                  {loading ? (
+                    <div className="flex justify-center py-10">
+                      <Loader2 className="animate-spin" size={32} />
+                    </div>
+                  ) : (
+                    <div className="space-y-4 pb-20">
+                      {pendingList.map((emp, index) => (
+                        <div
+                          key={emp.id}
+                          className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden relative animate-slide-up"
+                        >
+                          <div className="p-5">
+                            <div className="flex items-center gap-4 mb-4">
+                              <div
+                                className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-md ${
+                                  emp.gender === "ស្រី"
+                                    ? "bg-gradient-to-br from-pink-400 to-rose-500"
+                                    : "bg-gradient-to-br from-blue-500 to-indigo-600"
+                                }`}
+                              >
+                                {emp.name.charAt(0)}
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 font-khmer">
+                                  {emp.name}
+                                </h3>
+                                <span className="inline-block text-[10px] text-slate-500 bg-slate-50 dark:bg-slate-700/50 px-2 py-0.5 rounded-md font-khmer">
+                                  {emp.skill}
+                                </span>
+                              </div>
+                            </div>
+                            {filterMode === "daily" && (
+                              <div className="space-y-3">
+                                <button
+                                  onClick={() => updateStatus(emp, "check-in")}
+                                  className="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white h-12 rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 font-khmer"
+                                >
+                                  <CheckCircle2 size={18} /> Check In
+                                </button>
+                                <div className="flex justify-between px-1 pt-1">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedEmp(emp);
+                                      setPermissionReason("");
+                                      setPermissionType("full");
+                                      setShowPermissionModal(true);
+                                    }}
+                                    className="text-xs font-bold text-slate-400 hover:text-amber-500 flex gap-1 font-khmer"
+                                  >
+                                    <FileText size={14} /> សុំច្បាប់
+                                  </button>
+                                  <button
+                                    onClick={() => updateStatus(emp, "absent")}
+                                    className="text-xs font-bold text-slate-400 hover:text-rose-500 flex gap-1 font-khmer"
+                                  >
+                                    <XCircle size={14} /> អវត្តមាន
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 2. ACTIVE VIEW */}
+              {viewMode === "working" && (
+                <div className="animate-fade-in space-y-5 no-print">
+                  <div className="flex items-center justify-between px-1">
+                    <h2 className="font-bold text-lg text-slate-700 dark:text-slate-200 font-khmer">
+                      បុគ្គលិកបានមក / ច្បាប់
+                    </h2>
+                    <span className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs px-3 py-1 rounded-full font-bold">
+                      {toKhmerNum(activeList.length)} នាក់
+                    </span>
+                  </div>
+                  <div className="space-y-4 pb-20">
+                    {activeList.map((emp, index) => {
+                      const key = emp.name.replace(/[.#$/[\]]/g, "_");
+                      const rec =
+                        filterMode === "daily" ? attendanceData[key] || {} : {};
+                      const hasCheckIn = !!rec.checkInTime;
+                      const hasCheckOut = !!rec.checkOutTime;
+                      const isPermissionIn = rec.checkInTime === "ច្បាប់";
+                      const isPermissionOut = rec.checkOutTime === "ច្បាប់";
+                      return (
+                        <div
+                          key={emp.id}
+                          className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden relative animate-slide-up"
+                        >
+                          <div
+                            className={`absolute top-4 right-4 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider font-khmer ${
+                              rec.status === "present"
+                                ? "bg-emerald-50 text-emerald-600"
+                                : rec.status === "permission"
+                                ? "bg-amber-50 text-amber-600"
+                                : "bg-rose-50 text-rose-600"
+                            }`}
+                          >
+                            {rec.status === "present"
+                              ? "វត្តមាន"
+                              : rec.status === "permission"
+                              ? "ច្បាប់"
+                              : "អវត្តមាន"}
+                          </div>
+                          <div className="p-5">
+                            <div className="flex items-center gap-4 mb-6">
+                              <div
+                                className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg ${
+                                  emp.gender === "ស្រី"
+                                    ? "bg-gradient-to-br from-pink-400 to-rose-500"
+                                    : "bg-gradient-to-br from-blue-500 to-indigo-600"
+                                }`}
+                              >
+                                {emp.name.charAt(0)}
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 font-khmer">
+                                  {emp.name}
+                                </h3>
+                                <span className="inline-block text-[10px] font-medium text-slate-500 bg-slate-50 dark:bg-slate-700/50 px-2 py-0.5 rounded-md font-khmer">
+                                  {emp.skill}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3 mb-5">
+                              <div
+                                className={`p-3 rounded-2xl border flex flex-col items-center justify-center h-20 ${
+                                  hasCheckIn
+                                    ? isPermissionIn
+                                      ? "bg-amber-50 border-amber-100 dark:bg-amber-900/10"
+                                      : "bg-emerald-50 border-emerald-100 dark:bg-emerald-900/10"
+                                    : "bg-slate-50 border-slate-100 dark:bg-slate-700/30 dark:border-slate-700"
+                                }`}
+                              >
+                                <span className="text-[10px] text-slate-400 font-bold mb-1 uppercase font-khmer">
+                                  ម៉ោងចូល
+                                </span>
+                                <span
+                                  className={`font-bold text-lg ${
+                                    isPermissionIn
+                                      ? "text-amber-600 font-khmer text-sm"
+                                      : hasCheckIn
+                                      ? "text-emerald-700 dark:text-emerald-400 font-khmer"
+                                      : "text-slate-300 font-khmer"
+                                  }`}
+                                >
+                                  {formatTimeKh(rec.checkInTime) || "--:--"}
+                                </span>
+                              </div>
+                              <div
+                                className={`p-3 rounded-2xl border flex flex-col items-center justify-center h-20 ${
+                                  hasCheckOut
+                                    ? isPermissionOut
+                                      ? "bg-amber-50 border-amber-100 dark:bg-amber-900/10"
+                                      : "bg-blue-50 border-blue-100 dark:bg-blue-900/10"
+                                    : "bg-slate-50 border-slate-100 dark:bg-slate-700/30 dark:border-slate-700"
+                                }`}
+                              >
+                                <span className="text-[10px] text-slate-400 font-bold mb-1 uppercase font-khmer">
+                                  ម៉ោងចេញ
+                                </span>
+                                <span
+                                  className={`font-bold text-lg ${
+                                    isPermissionOut
+                                      ? "text-amber-600 font-khmer text-sm"
+                                      : hasCheckOut
+                                      ? "text-blue-700 dark:text-blue-400 font-khmer"
+                                      : "text-slate-300 font-khmer"
+                                  }`}
+                                >
+                                  {formatTimeKh(rec.checkOutTime) || "--:--"}
+                                </span>
+                              </div>
+                            </div>
+                            {filterMode === "daily" &&
+                              !hasCheckOut &&
+                              rec.status === "present" && (
+                                <button
+                                  onClick={() => updateStatus(emp, "check-out")}
+                                  className="w-full h-12 rounded-2xl font-bold text-sm border-2 border-blue-600 text-blue-600 bg-white dark:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-2 font-khmer"
+                                >
+                                  <LogOut size={18} /> Check Out
+                                </button>
+                              )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. SUMMARY (Restored Features) */}
+              {viewMode === "summary" && (
+                <div className="animate-fade-in space-y-6 pb-20 no-print">
+                  {/* Total Card */}
+                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-black rounded-[32px] p-6 text-white shadow-xl relative overflow-hidden">
+                    <div className="relative z-10">
+                      <p className="text-slate-400 text-sm font-khmer mb-1">
+                        សរុបវត្តមាន (
+                        {filterMode === "daily"
+                          ? formatDateKh(filterDate)
+                          : "Filter"}
+                        )
+                      </p>
+                      <h2 className="text-5xl font-extrabold tracking-tight font-khmer">
+                        {toKhmerNum(aggregatedStats.presentCount)}
+                      </h2>
+                    </div>
+                    <div className="absolute right-0 top-0 opacity-10 p-4">
+                      <PieChart size={120} />
+                    </div>
+                  </div>
+
+                  {/* Stats Grid (Restored) */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center">
+                      <span className="text-2xl font-extrabold text-emerald-600 font-khmer">
+                        {toKhmerNum(aggregatedStats.presentCount)}
+                      </span>
+                      <span className="text-xs text-slate-500 font-khmer">
+                        វត្តមាន
+                      </span>
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center">
+                      <span className="text-2xl font-extrabold text-amber-600 font-khmer">
+                        {toKhmerNum(aggregatedStats.permissionCount)}
+                      </span>
+                      <span className="text-xs text-slate-500 font-khmer">
+                        ច្បាប់
+                      </span>
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center">
+                      <span className="text-2xl font-extrabold text-rose-600 font-khmer">
+                        {toKhmerNum(aggregatedStats.absentCount)}
+                      </span>
+                      <span className="text-xs text-slate-500 font-khmer">
+                        អវត្តមាន
+                      </span>
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center">
+                      <span className="text-2xl font-extrabold text-slate-700 dark:text-slate-200 font-khmer">
+                        {toKhmerNum(aggregatedStats.total)}
+                      </span>
+                      <span className="text-xs text-slate-500 font-khmer">
+                        បុគ្គលិកសរុប
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Skill Breakdown (Restored) */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 font-khmer flex items-center gap-2">
+                      <TrendingUp
+                        size={20}
+                        className={`${currentTheme.text} ${currentTheme.darkText}`}
+                      />{" "}
+                      ទិន្នន័យតាមជំនាញ
+                    </h3>
+                    {aggregatedStats.skillStats.map((stat, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white dark:bg-slate-800 rounded-[24px] p-5 shadow-sm border border-slate-100 dark:border-slate-700 animate-slide-up"
+                        style={{ animationDelay: `${idx * 50}ms` }}
+                      >
+                        <div className="flex justify-between items-center mb-4">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-10 h-10 rounded-xl ${currentTheme.secondary} dark:bg-slate-700 ${currentTheme.text} ${currentTheme.darkText} flex items-center justify-center font-bold text-lg font-khmer`}
+                            >
+                              {stat.skill.charAt(0)}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-slate-800 dark:text-slate-100 font-khmer text-base">
+                                {stat.skill}
+                              </h4>
+                              <p className="text-xs text-slate-400 font-khmer">
+                                {toKhmerNum(stat.totalEmps)} បុគ្គលិក
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="text-slate-500 dark:text-slate-400 font-khmer">
+                                កំពុងធ្វើការ
+                              </span>
+                              <span className="font-bold text-blue-600 dark:text-blue-400 font-khmer">
+                                {toKhmerNum(stat.pending)}
+                              </span>
+                            </div>
+                            <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                              <div
+                                className="bg-blue-500 h-2.5 rounded-full"
+                                style={{
+                                  width: `${
+                                    (stat.pending / (stat.totalEmps || 1)) * 100
+                                  }%`,
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                          <div className="relative">
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="text-slate-500 dark:text-slate-400 font-khmer">
+                                បានបញ្ចប់
+                              </span>
+                              <span className="font-bold text-emerald-600 dark:text-emerald-400 font-khmer">
+                                {toKhmerNum(stat.completed)}
+                              </span>
+                            </div>
+                            <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                              <div
+                                className="bg-emerald-500 h-2.5 rounded-full"
+                                style={{
+                                  width: `${
+                                    (stat.completed / (stat.totalEmps || 1)) *
+                                    100
+                                  }%`,
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 4. REPORT VIEW (A4 PRINT) */}
+              {viewMode === "report" && (
+                <div className="bg-white rounded-[32px] shadow-sm border border-slate-200 overflow-hidden animate-fade-in mb-20">
+                  <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center no-print">
+                    <div>
+                      <h3 className="font-bold text-slate-800 font-khmer text-lg">
+                        Preview របាយការណ៍
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1 font-khmer">
+                        {filterMode === "daily"
+                          ? formatDateKh(filterDate)
+                          : "ចន្លោះថ្ងៃ"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => window.print()}
+                      className={`bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg active:scale-95 transition-transform flex items-center gap-2 font-khmer`}
+                    >
+                      <Printer size={18} /> Print
+                    </button>
+                  </div>
+
+                  {/* PRINT SECTION */}
+                  <div className="print-only">
+                    <div className="print-header">
+                      <div className="national-motto">
+                        <h3>ព្រះរាជាណាចក្រកម្ពុជា</h3>
+                        <h2>ជាតិ សាសនា ព្រះមហាក្សត្រ</h2>
+                      </div>
+                      <h1 className="report-title">
+                        របាយការណ៍វត្តមានបុគ្គលិកប្រចាំថ្ងៃ
+                      </h1>
+                      <div className="doc-info">
+                        <div style={{ fontWeight: "bold", color: "#2563eb" }}>
+                          HR Admin
+                        </div>
+                        <div>
+                          ថ្ងៃ
+                          {getKhmerDay(
+                            filterMode === "daily" ? filterDate : new Date()
+                          )}{" "}
+                          {filterMode === "daily"
+                            ? formatDateKh(filterDate)
+                            : `${formatDateKh(startDate)} ដល់ ${formatDateKh(
+                                endDate
+                              )}`}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="print-summary-grid">
+                      <div className="print-card">
+                        <div className="print-card-label">សរុប</div>
+                        <div className="print-card-value">
+                          {toKhmerNum(aggregatedStats.total)}
+                        </div>
+                      </div>
+                      <div className="print-card">
+                        <div className="print-card-label">វត្តមាន</div>
+                        <div
+                          className="print-card-value"
+                          style={{ color: "#15803d" }}
+                        >
+                          {toKhmerNum(aggregatedStats.presentCount)}
+                        </div>
+                      </div>
+                      <div className="print-card">
+                        <div className="print-card-label">ច្បាប់</div>
+                        <div
+                          className="print-card-value"
+                          style={{ color: "#b45309" }}
+                        >
+                          {toKhmerNum(aggregatedStats.permissionCount)}
+                        </div>
+                      </div>
+                      <div className="print-card">
+                        <div className="print-card-label">អវត្តមាន</div>
+                        <div
+                          className="print-card-value"
+                          style={{ color: "#b91c1c" }}
+                        >
+                          {toKhmerNum(aggregatedStats.absentCount)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <table>
+                      <thead>
+                        <tr>
+                          <th className="col-no">ល.រ</th>
+                          <th className="col-name">ឈ្មោះបុគ្គលិក</th>
+                          <th className="col-skill">ជំនាញ</th>
+                          <th className="col-time">ចូល</th>
+                          <th className="col-time">ចេញ</th>
+                          <th className="col-status">ស្ថានភាព</th>
+                          <th className="col-note">ផ្សេងៗ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {aggregatedStats.reportRecords.length === 0 ? (
+                          <tr>
+                            <td
+                              colSpan="7"
+                              style={{ textAlign: "center", padding: "20px" }}
+                            >
+                              គ្មានទិន្នន័យ
+                            </td>
+                          </tr>
+                        ) : (
+                          aggregatedStats.reportRecords.map((rec, i) => (
+                            <tr key={i}>
+                              <td className="col-no">{toKhmerNum(i + 1)}</td>
+                              <td className="col-name">{rec.name}</td>
+                              <td className="col-skill">
+                                {employees.find((e) => e.name === rec.name)
+                                  ?.skill || "-"}
+                              </td>
+                              <td className="col-time">
+                                {formatTimeKh(rec.checkInTime) || "-"}
+                              </td>
+                              <td className="col-time">
+                                {formatTimeKh(rec.checkOutTime) || "-"}
+                              </td>
+                              <td className="col-status font-khmer">
+                                {rec.status === "present"
+                                  ? "វត្តមាន"
+                                  : rec.status === "permission"
+                                  ? "ច្បាប់"
+                                  : "អវត្តមាន"}
+                              </td>
+                              <td className="col-note font-khmer">
+                                {rec.reason || ""}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+
+                    <div className="footer-section">
+                      <div className="signature-box">
+                        <div className="signature-title">រៀបចំដោយ</div>
+                        <div className="signature-line"></div>
+                      </div>
+                      <div className="signature-box">
+                        <div className="signature-title">
+                          ពិនិត្យ និងឯកភាពដោយ
+                        </div>
+                        <div className="signature-line"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto no-print">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
+                        <tr>
+                          <th className="p-3 font-khmer pl-6 text-left">
+                            ឈ្មោះ
+                          </th>
+                          <th className="p-3 font-khmer text-left">ជំនាញ</th>
+                          <th className="p-3 text-center font-khmer">
+                            ស្ថានភាព
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {aggregatedStats.reportRecords.map((rec, i) => (
+                          <tr key={i} className="hover:bg-slate-50">
+                            <td className="p-3 font-bold text-slate-700 font-khmer pl-6">
+                              {rec.name}
+                            </td>
+                            <td className="p-3 text-slate-500 text-xs font-khmer">
+                              {employees.find((e) => e.name === rec.name)
+                                ?.skill || "-"}
+                            </td>
+                            <td className="p-3 text-center">
+                              <span className="bg-slate-100 px-2 py-1 rounded text-xs font-bold uppercase font-khmer">
+                                {rec.status === "present"
+                                  ? "វត្តមាន"
+                                  : rec.status === "permission"
+                                  ? "ច្បាប់"
+                                  : "អវត្តមាន"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* 5. SETTINGS VIEW (Restored Features) */}
+              {viewMode === "settings" && (
+                <div className="animate-fade-in space-y-6 pb-20 no-print">
+                  <h2 className="font-bold text-xl text-slate-800 dark:text-slate-100 font-khmer px-1">
+                    ការកំណត់
+                  </h2>
+                  {/* Appearance */}
+                  <div className="bg-white dark:bg-slate-800 p-6 rounded-[32px] shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-200 font-khmer mb-4 flex items-center gap-2">
+                      <Layout size={20} /> រូបរាង
+                    </h3>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setIsDarkMode(false)}
+                        className={`flex-1 py-3 rounded-2xl border flex items-center justify-center gap-2 transition-all font-khmer ${
+                          !isDarkMode
+                            ? "bg-slate-100 border-slate-300 text-slate-800"
+                            : "border-slate-200 text-slate-400"
+                        }`}
+                      >
+                        <Sun size={18} /> ពណ៌ថ្ងៃ
+                      </button>
+                      <button
+                        onClick={() => setIsDarkMode(true)}
+                        className={`flex-1 py-3 rounded-2xl border flex items-center justify-center gap-2 transition-all font-khmer ${
+                          isDarkMode
+                            ? "bg-slate-700 border-slate-600 text-white"
+                            : "border-slate-200 text-slate-400"
+                        }`}
+                      >
+                        <Moon size={18} /> ពណ៌យប់
+                      </button>
+                    </div>
+                  </div>
+                  {/* Theme Palette (Restored) */}
+                  <div className="bg-white dark:bg-slate-800 p-6 rounded-[32px] shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-200 font-khmer mb-4 flex items-center gap-2">
+                      <Palette size={20} /> ពណ៌កម្មវិធី
+                    </h3>
+                    <div className="grid grid-cols-4 gap-3">
+                      {THEMES.map((theme) => (
+                        <button
+                          key={theme.id}
+                          onClick={() => setCurrentTheme(theme)}
+                          className={`aspect-square rounded-2xl flex items-center justify-center transition-all ${
+                            currentTheme.id === theme.id
+                              ? "ring-2 ring-offset-2 ring-slate-900 dark:ring-slate-400"
+                              : ""
+                          } ${theme.secondary} dark:bg-slate-700`}
+                        >
+                          <div
+                            className={`w-6 h-6 rounded-full ${theme.primary}`}
+                          ></div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Filters */}
+                  <div className="bg-white dark:bg-slate-800 p-6 rounded-[32px] shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-200 font-khmer mb-4 flex items-center gap-2">
+                      <Filter size={20} /> Filter ទិន្នន័យ
+                    </h3>
+                    <div className="flex bg-slate-100 dark:bg-slate-700 p-1.5 rounded-2xl mb-5">
+                      {["daily", "monthly", "range"].map((mode) => (
+                        <button
+                          key={mode}
+                          onClick={() => setFilterMode(mode)}
+                          className={`flex-1 py-2.5 rounded-xl text-xs font-bold capitalize transition-all font-khmer ${
+                            filterMode === mode
+                              ? "bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          {mode === "daily"
+                            ? "ប្រចាំថ្ងៃ"
+                            : mode === "monthly"
+                            ? "ប្រចាំខែ"
+                            : "ចន្លោះថ្ងៃ"}
+                        </button>
+                      ))}
+                    </div>
+                    {filterMode === "daily" && (
+                      <input
+                        type="date"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                        className="w-full p-4 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl border-none outline-none font-mono text-slate-700"
+                      />
+                    )}
+                    {filterMode === "monthly" && (
+                      <input
+                        type="month"
+                        value={filterMonth}
+                        onChange={(e) => setFilterMonth(e.target.value)}
+                        className="w-full p-4 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl border-none outline-none font-mono text-slate-700"
+                      />
+                    )}
+                    {filterMode === "range" && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <input
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl border-none outline-none font-mono text-slate-700"
+                        />
+                        <input
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl border-none outline-none font-mono text-slate-700"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </main>
+
+            {/* Navbar */}
+            <nav className="fixed bottom-5 left-5 right-5 h-[72px] glass-panel rounded-[24px] shadow-2xl shadow-slate-200/50 dark:shadow-none z-40 no-print flex items-center justify-around px-1 safe-area-bottom">
+              <NavBtn
+                icon={<UserPlus size={22} />}
+                label="វត្តមាន"
+                active={viewMode === "attendance"}
+                onClick={() => setViewMode("attendance")}
+                theme={currentTheme}
+              />
+              <NavBtn
+                icon={<ListChecks size={22} />}
+                label="បានមក"
+                active={viewMode === "working"}
+                onClick={() => setViewMode("working")}
+                theme={currentTheme}
+              />
+              <NavBtn
+                icon={<PieChart size={22} />}
+                label="សរុប"
+                active={viewMode === "summary"}
+                onClick={() => setViewMode("summary")}
+                theme={currentTheme}
+              />
+              <NavBtn
+                icon={<FileText size={22} />}
+                label="របាយការណ៍"
+                active={viewMode === "report"}
+                onClick={() => setViewMode("report")}
+                theme={currentTheme}
+              />
+              <NavBtn
+                icon={<Settings size={22} />}
+                label="កំណត់"
+                active={viewMode === "settings"}
+                onClick={() => setViewMode("settings")}
+                theme={currentTheme}
+              />
+            </nav>
+
+            {/* Toast & Modal */}
+            {toast && (
+              <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3.5 rounded-full shadow-2xl flex items-center gap-3 bg-slate-900 dark:bg-white dark:text-slate-900 text-white animate-fade-in">
+                <CheckCircle2 size={18} />
+                <span className="font-bold font-khmer text-sm">
+                  {toast.message}
+                </span>
+              </div>
+            )}
+            {showPermissionModal && (
+              <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-6 no-print animate-fade-in">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] w-full max-w-sm p-6 shadow-2xl border border-white/50 dark:border-slate-600">
+                  <h3 className="font-bold text-xl mb-4 font-khmer text-slate-800 dark:text-white">
+                    សុំច្បាប់: {selectedEmp?.name}
+                  </h3>
+                  <div className="space-y-2 mb-4">
+                    <label className="text-xs font-bold text-slate-400 uppercase font-khmer">
+                      ប្រភេទច្បាប់
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => setPermissionType("full")}
+                        className={`py-2 rounded-xl text-xs font-bold transition-all font-khmer ${
+                          permissionType === "full"
+                            ? "bg-amber-100 text-amber-700 border border-amber-200"
+                            : "bg-slate-50 text-slate-500 border border-slate-100 dark:bg-slate-700 dark:border-slate-600"
+                        }`}
+                      >
+                        ពេញមួយថ្ងៃ
+                      </button>
+                      <button
+                        onClick={() => setPermissionType("check-in")}
+                        className={`py-2 rounded-xl text-xs font-bold transition-all font-khmer ${
+                          permissionType === "check-in"
+                            ? "bg-amber-100 text-amber-700 border border-amber-200"
+                            : "bg-slate-50 text-slate-500 border border-slate-100 dark:bg-slate-700 dark:border-slate-600"
+                        }`}
+                      >
+                        Check In
+                      </button>
+                      <button
+                        onClick={() => setPermissionType("check-out")}
+                        className={`py-2 rounded-xl text-xs font-bold transition-all font-khmer ${
+                          permissionType === "check-out"
+                            ? "bg-amber-100 text-amber-700 border border-amber-200"
+                            : "bg-slate-50 text-slate-500 border border-slate-100 dark:bg-slate-700 dark:border-slate-600"
+                        }`}
+                      >
+                        Check Out
+                      </button>
+                    </div>
+                  </div>
+                  <textarea
+                    className="w-full p-4 bg-slate-50 dark:bg-slate-700 rounded-2xl outline-none font-khmer text-sm mb-4 resize-none h-24 focus:ring-2 focus:ring-blue-100 dark:text-white dark:focus:ring-slate-600 transition-all"
+                    placeholder="មូលហេតុ..."
+                    value={permissionReason}
+                    onChange={(e) => setPermissionReason(e.target.value)}
+                    autoFocus
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowPermissionModal(false)}
+                      className="flex-1 py-3.5 rounded-2xl text-slate-500 dark:text-slate-300 font-bold text-sm bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 transition-colors font-khmer"
+                    >
+                      បោះបង់
+                    </button>
+                    <button
+                      onClick={updatePermission}
+                      className={`flex-1 py-3.5 rounded-2xl text-white font-bold text-sm ${currentTheme.primary} shadow-lg shadow-blue-200 dark:shadow-none transition-transform active:scale-95 font-khmer`}
+                    >
+                      រក្សាទុក
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      const NavBtn = ({ icon, label, active, onClick, theme }) => (
+        <button
+          onClick={onClick}
+          className="relative w-16 h-full flex flex-col items-center justify-center gap-1.5 group"
+        >
+          <div
+            className={`p-2.5 rounded-2xl transition-all duration-300 ${
+              active
+                ? `${theme.primary} text-white -translate-y-4 shadow-lg ring-4 ring-white dark:ring-slate-800`
+                : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+            }`}
+          >
+            {icon}
+          </div>
+          <span
+            className={`text-[9px] font-bold font-khmer transition-all duration-300 absolute bottom-3 ${
+              active
+                ? "opacity-100 translate-y-0 text-slate-800 dark:text-slate-200"
+                : "opacity-0 translate-y-2"
+            }`}
+          >
+            {label}
+          </span>
+        </button>
+      );
+
+      const root = createRoot(document.getElementById("root"));
+      root.render(<AttendanceApp />);
+    </script>
+  </body>
+</html>
